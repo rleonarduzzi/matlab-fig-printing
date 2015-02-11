@@ -87,14 +87,8 @@ end
 
 % TODO add more supported figures properties as key-value pairs
 
-
-<<<<<<< HEAD
-
-
-=======
 % Switch to selected figure.
 figure (fighan)
->>>>>>> master
 
 % Store current axes limits. Later they will be restored because shrinking 
 % the figure sometimes changes de limits.
