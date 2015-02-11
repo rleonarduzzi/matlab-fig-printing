@@ -22,6 +22,37 @@ end
 use_box = 'on';
 font_size = 8;
 
+%-------------------------------------------------------------------------------
+% Determine file format from input name
+% This is overriden if format is explicitly provided.
+idx_ext = find (filename == '.', 1, 'last') + 1 : length (filename);
+extension = filename (idx_ext);
+flag_using_default_file_format = false;
+switch extension
+  case 'pdf'
+    file_format = '-dpdf';
+  case 'bmp'
+    file_format = '-dbmp';
+  case 'eps'
+    file_format = '-depsc2';
+  case 'hdf'
+    file_format = '-dhdf';
+  case {'jpg', 'jpeg'}
+    file_format = '-djpeg';
+  case 'pgm'
+    file_format = '-dpgm';
+  case 'png'
+    file_format = '-dpng';
+  case 'ppm'
+    file_format = '-dppm';
+  case {'tiff', 'tif'}
+    file_format = '-dtiff';
+  otherwise
+    flag_using_default_file_format = true;
+    file_format = '-dpdf';
+end
+%-------------------------------------------------------------------------------
+% Input parsing
 iarg = 1;
 while iarg < length (varargin)
     if strcmpi (varargin{iarg}, 'Box') && strcmpi (varargin{iarg + 1}, 'off')
@@ -33,12 +64,28 @@ while iarg < length (varargin)
         end
         font_size = varargin{iarg+1};
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'FileFormat') 
+        if ~ischar (varargin{iarg+1})
+            error ('FileFormat a string.');
+        end
+        file_format = varargin{iarg+1};
+        flag_using_default_file_format = false;
+        iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end    
 end
 
+
+if flag_using_default_file_format
+    warning (['File extension not recognized and file format not specified.'...
+              ' Using default: pdf'])
+end
+
 % TODO add more supported figures properties as key-value pairs
+
+
+
 
 
 % Store current axes limits. Later they will be restored because shrinking 
@@ -83,9 +130,8 @@ set (gca, 'Position', axes_pos)
 % Restore axes limits in case they have been changed.
 set (gca, 'XLim', limix, 'YLim', limiy)
 
-
 % Save the figure in pdf format
-print ('-dpdf', '-loose', filename)
+print (file_format, '-loose', filename)
 
 close (fighan)
 
