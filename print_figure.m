@@ -1,97 +1,98 @@
-function imprimirFigura( nombre, width, height, fighan, varargin )
-% Imprime la figura actual en formato pdf.
-% Entradas:
-%          nombre: nombre del archivo con formato pdf que se genera.
-%          height: altura de la figura en cm
-%          width:  ancho de la figura en cm
-%          fighan: handle de la figura a imprimir
+function print_figure (filename, width, height, fighan, varargin)
+% function print_figure (name, width, height, fighan, varargin)
+% Prints a figure to a given format so that it has:
+%    - The desired width and height (in centimeters)
+%    - A fixed fontsize in all text.
+%    - No white margin around the figure.
 %
-% v03
+% Inputs:
+%          filename: target filename. Extension determines format.
+%          width:  figure widht in centimeters
+%          height: figure height in centimeters
+%          fighan: handle of the figure to be printed (default: current figure)
 %
 % Roberto Fabio Leonarduzzi
-% Abril de 2013
+% February 2015
 
 if nargin < 4 || numel (fighan) ~= 1
     fighan = gcf;
 end
 
-% Parámetros por defecto:
+% Default parameters
 use_box = 'on';
-fontSize = 8;
+font_size = 8;
 
-iarg=1;
-while iarg < length(varargin)
+iarg = 1;
+while iarg < length (varargin)
     if strcmpi (varargin{iarg}, 'Box') && strcmpi (varargin{iarg + 1}, 'off')
         use_box = 'off';
         iarg = iarg + 2;
     elseif strcmpi (varargin{iarg}, 'FontSize') 
         if ~isscalar (varargin{iarg+1})
-            error ('FontSize debe ser un número.');
+            error ('Font size must be a number.');
         end
-        fontSize = varargin{iarg+1};
+        font_size = varargin{iarg+1};
         iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end    
 end
 
-% TODO Pasar más de este tipo de cosas como parámetro, con la sintaxis 
-% 'clave', valor de matlab.
+% TODO add more supported figures properties as key-value pairs
 
 
-% Guardo los límites del axes para restablecerlos después.
-% Esto supone que la figura tiene un solo axes.
+% Store current axes limits. Later they will be restored because shrinking 
+% the figure sometimes changes de limits.
+% This assumes that the figure has only one axes.
+% TODO remove limitions by storing state of all children axes.
 limix = get (gca, 'XLim');
 limiy = get (gca, 'YLim');
 
 set (fighan, 'Color', [1 1 1])
 
-% FIXME Verificar que los hijos de una figura sean sólo ejes, o en su
-% defecto cosas con las propiedades Box 
-axesHijos = findall(fighan, 'type', 'axes');
-set (axesHijos, 'Box', use_box )
-    set (axesHijos, 'FontUnits', 'points', 'FontSize', fontSize )
+% Change box and fontsize of children axes
+children_axes = findall(fighan, 'type', 'axes');
+set (children_axes, 'Box', use_box )
+set (children_axes, 'FontUnits', 'points', 'FontSize', font_size )
 
-% Cambio la fuente de todos los hijos con propiedad texto.
-set (findall(fighan, 'type', 'text'), 'FontSize', fontSize)
+% Fix fontsize of all children with text property.
+set (findall (fighan, 'type', 'text'), 'FontSize', font_size)
 
-% Fijo las unidades en centímetros para las medidas siguientes
+% Use cm as the unit for all what follows.
 set (fighan, 'Units', 'centimeters')
 
-%get(fighan, 'Position') % para debugging
-% Fijo la posición y tamaño de la figura en la ventana
-set( fighan, 'Position', [ 0 0 width height] )
+%get(fighan, 'Position') % debugging
+% Fix size and position
+set (fighan, 'Position', [ 0 0 width height])
 
-%get(fighan, 'Position') % para debugging
+%get(fighan, 'Position') %  debugging
 
-% Con esto el tamaño de la figura en el papel será igual que en la pantalla.
-set( fighan, 'PaperPositionMode', 'auto' )
+% Make figure size in paper the same than on the screen
+set (fighan, 'PaperPositionMode', 'auto')
 
+screen_pos = get (fighan, 'Position');
+screen_pos(1:2) = [1 1];
+set (fighan, 'PaperUnits', get(fighan, 'Units'), ...
+             'PaperSize', screen_pos(3:4))
 
-posPantalla = get( fighan, 'Position' );
-posPantalla(1:2) = [1 1];
-set( fighan, 'PaperUnits', get(fighan, 'Units'), ...
-          'PaperSize', posPantalla(3:4) )
-
-% Subo un poquito el axes porque si no matlab siempre corta el xlabel.
+% KLUDGE shift axes a bit so that xlabel isn't chopped.
 axes_pos = get (gca, 'Position');
 %axes_pos(2) = axes_pos(2) + 0.05 * axes_pos(4);
 set (gca, 'Position', axes_pos)
 
-% Después de los cambios de tamaño, restablezco los limites del axes, en caso
-% de que matlab los haya cambiado
+% Restore axes limits in case they have been changed.
 set (gca, 'XLim', limix, 'YLim', limiy)
 
 
-% Guardo la figura en formato pdf
-print( '-dpdf', '-loose', nombre )
+% Save the figure in pdf format
+print ('-dpdf', '-loose', filename)
 
-close( fighan )
+close (fighan)
 
 return
 %---------------------------------------------
-% Ahora cambio el título del pdf para que salga el nombre del archivo. Por
-% defecto sale el nombre de un archivo temporal fiero.
+% KLUDGE matlab2010-11 in linux includes an ugly temporal name in the pdf title.
+% Try to use pdftk to put correct title.
 
 % TODO verificar si pdftk está instalado
 try
