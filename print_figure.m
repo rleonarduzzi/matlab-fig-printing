@@ -1,4 +1,4 @@
-function print_figure (filename, width, height, fighan, varargin)
+function print_figure (filename, width, height, varargin)
 % function print_figure (name, width, height, fighan, varargin)
 % Prints a figure to a given format so that it has:
 %    - The desired width and height (in centimeters)
@@ -14,11 +14,9 @@ function print_figure (filename, width, height, fighan, varargin)
 % Roberto Fabio Leonarduzzi
 % February 2015
 
-if nargin < 4 || numel (fighan) ~= 1
-    fighan = gcf;
-end
 
 % Default parameters
+fighan = gcf;
 use_box = 'on';
 font_size = 8;
 
@@ -70,6 +68,11 @@ while iarg < length (varargin)
         end
         file_format = varargin{iarg+1};
         flag_using_default_file_format = false;
+    elseif strcmpi (varargin{iarg}, 'Handle')
+        if ~isscalar (varargin{iarg+1})
+            error ('Figure handle must be a number.');
+        end
+        fighan = varargin{iarg+1};
         iarg = iarg + 2;
     else
         iarg = iarg + 1;
@@ -85,8 +88,13 @@ end
 % TODO add more supported figures properties as key-value pairs
 
 
+<<<<<<< HEAD
 
 
+=======
+% Switch to selected figure.
+figure (fighan)
+>>>>>>> master
 
 % Store current axes limits. Later they will be restored because shrinking 
 % the figure sometimes changes de limits.
