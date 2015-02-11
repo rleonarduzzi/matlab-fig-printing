@@ -1,15 +1,25 @@
 function print_figure (filename, width, height, varargin)
-% function print_figure (name, width, height, fighan, varargin)
+% function print_figure (name, width, height, 'OptionName', option)
 % Prints a figure to a given format so that it has:
 %    - The desired width and height (in centimeters)
 %    - A fixed fontsize in all text.
 %    - No white margin around the figure.
 %
 % Inputs:
-%          filename: target filename. Extension determines format.
-%          width:  figure widht in centimeters
-%          height: figure height in centimeters
-%          fighan: handle of the figure to be printed (default: current figure)
+%         - filename: target filename. Extension determines format.
+%         - width:  figure widht in centimeters
+%         - height: figure height in centimeters
+%
+% Optional inputs (key value pairs):
+%         - 'FontSize': fixed font size to be used by all objects
+%         with a text property. Values: numer (default 8)
+%         - 'Box': set the box of the axes on or off. Values: 'on', 'off'
+%         (default off)
+%         - 'Handle': handle of the figure to print. Values: valid figure
+%         handle (default gcf).
+%         - 'FileFormat': format to be used when printing. Values: string
+%         with valid matlab driver. If not specified, it is determined from
+%         the extension on filename. If this fails, the default is '-dpdf'.
 %
 % Roberto Fabio Leonarduzzi
 % February 2015
