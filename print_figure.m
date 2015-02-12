@@ -98,9 +98,6 @@ end
 
 % TODO add more supported figures properties as key-value pairs
 
-% Switch to selected figure.
-figure (fighan)
-
 % Get handle to children axes.
 children_axes = findall(fighan, 'type', 'axes');
 nchildren = length (children_axes);
