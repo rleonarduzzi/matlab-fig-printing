@@ -21,10 +21,12 @@ function print_figure (filename, width, height, varargin)
 %         with valid matlab driver. If not specified, it is determined from
 %         the extension on filename. If this fails, the default is '-dpdf'.
 %
-% Roberto Fabio Leonarduzzi
-% February 2015
+% Get the newest version from:
+%     https://github.com/rleonarduzzi/matlab-fig-printing
+%
+% Copyright Roberto Fabio Leonarduzzi, February 2015
 
-
+%-------------------------------------------------------------------------------
 % Default parameters
 fighan = gcf;
 use_box = 'on';
@@ -33,6 +35,7 @@ font_size = 8;
 %-------------------------------------------------------------------------------
 % Determine file format from input name
 % This is overriden if format is explicitly provided.
+
 idx_ext = find (filename == '.', 1, 'last') + 1 : length (filename);
 extension = filename (idx_ext);
 flag_using_default_file_format = false;
@@ -61,6 +64,7 @@ switch extension
 end
 %-------------------------------------------------------------------------------
 % Input parsing
+
 iarg = 1;
 while iarg < length (varargin)
     if strcmpi (varargin{iarg}, 'Box') && strcmpi (varargin{iarg + 1}, 'off')
