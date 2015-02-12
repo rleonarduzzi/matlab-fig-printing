@@ -98,11 +98,12 @@ end
 
 % TODO add more supported figures properties as key-value pairs
 
+%-------------------------------------------------------------------------------
 % Get handle to children axes.
 children_axes = findall(fighan, 'type', 'axes');
 nchildren = length (children_axes);
 
-% Store cdhildre axes' limits. Later they will be restored because shrinking 
+% Store children axes' limits. Later they will be restored because shrinking 
 % the figure sometimes changes the limits.
 for ich = length (children_axes) : -1 : 1
     limix(ich, :) = get (children_axes(ich), 'XLim');
