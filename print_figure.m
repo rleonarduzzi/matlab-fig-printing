@@ -68,6 +68,7 @@ while iarg < length (varargin)
         end
         file_format = varargin{iarg+1};
         flag_using_default_file_format = false;
+        iarg = iarg + 2;
     elseif strcmpi (varargin{iarg}, 'Handle')
         if ~isscalar (varargin{iarg+1})
             error ('Figure handle must be a number.');
