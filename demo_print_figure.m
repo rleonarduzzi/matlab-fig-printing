@@ -54,3 +54,19 @@ fformat = '-depsc2';
 print_figure (filename, width, height, ...
               'FontSize', fontsize, 'FileFormat', fformat)
 
+%-------------------------------------------------------------------------------
+% Example 3: subplots
+
+figure (1)
+for i = 1 : 4
+    subplot (2, 2, i)
+    plot (xx, i*yy)
+    xlabel ('x')
+    ylabel (sprintf ('y_%i', i))
+end
+
+width = 14;
+height = 10;
+filename = 'figure3.pdf';
+
+print_figure (filename, width, height)

@@ -101,17 +101,20 @@ end
 % Switch to selected figure.
 figure (fighan)
 
-% Store current axes limits. Later they will be restored because shrinking 
-% the figure sometimes changes de limits.
-% This assumes that the figure has only one axes.
-% TODO remove limitions by storing state of all children axes.
-limix = get (gca, 'XLim');
-limiy = get (gca, 'YLim');
+% Get handle to children axes.
+children_axes = findall(fighan, 'type', 'axes');
+nchildren = length (children_axes);
+
+% Store cdhildre axes' limits. Later they will be restored because shrinking 
+% the figure sometimes changes the limits.
+for ich = length (children_axes) : -1 : 1
+    limix(ich, :) = get (children_axes(ich), 'XLim');
+    limiy(ich, :) = get (children_axes(ich), 'YLim');
+end
 
 set (fighan, 'Color', [1 1 1])
 
 % Change box and fontsize of children axes
-children_axes = findall(fighan, 'type', 'axes');
 set (children_axes, 'Box', use_box )
 set (children_axes, 'FontUnits', 'points', 'FontSize', font_size )
 
@@ -135,13 +138,10 @@ screen_pos(1:2) = [1 1];
 set (fighan, 'PaperUnits', get(fighan, 'Units'), ...
              'PaperSize', screen_pos(3:4))
 
-% KLUDGE shift axes a bit so that xlabel isn't chopped.
-axes_pos = get (gca, 'Position');
-%axes_pos(2) = axes_pos(2) + 0.05 * axes_pos(4);
-set (gca, 'Position', axes_pos)
-
 % Restore axes limits in case they have been changed.
-set (gca, 'XLim', limix, 'YLim', limiy)
+for ich = 1 : nchildren
+    set (children_axes(ich), 'XLim', limix(ich,:), 'YLim', limiy(ich, :))
+end
 
 % Save the figure in pdf format
 print (file_format, '-loose', filename)
@@ -150,8 +150,8 @@ close (fighan)
 
 return
 %---------------------------------------------
-% KLUDGE matlab2010-11 in linux includes an ugly temporal name in the pdf title.
-% Try to use pdftk to put correct title.
+% KLUDGE matlab2010-11 in linux uses an ugly temporal name as the pdf title.
+% Try to use pdftk to use filename as title.
 
 % TODO verificar si pdftk está instalado
 try
