@@ -6,25 +6,33 @@ function print_figure (filename, width, height, varargin)
 %    - No white margin around the figure.
 %
 % Inputs:
-%         - filename: target filename. Extension determines format.
-%         - width:  figure widht in centimeters
-%         - height: figure height in centimeters
+%  - filename: target filename. Extension determines format.
+%  - width:  figure widht in centimeters
+%  - height: figure height in centimeters
 %
 % Optional inputs (key value pairs):
-%         - 'FontSize': fixed font size to be used by all objects
-%         with a text property. Values: numer (default 8)
-%         - 'Box': set the box of the axes on or off. Values: 'on', 'off'
-%         (default off)
-%         - 'Handle': handle of the figure to print. Values: valid figure
-%         handle (default gcf).
-%         - 'FileFormat': format to be used when printing. Values: string
-%         with valid matlab driver. If not specified, it is determined from
-%         the extension on filename. If this fails, the default is '-dpdf'.
-%
+%  - 'FontSize': fixed font size to be used by all objects
+%  with a text property.
+%      = 8 (default) | Positive number
+%  - 'Box': set the box of the axes on or off.
+%      = 'on' (default)| 'off'
+%  - 'Handle': handle of the figure to print.
+%      = gcf (default) | figure handle
+%  - 'FileFormat': format to be used when printing.
+%      = string with valid matlab driver. If not specified, it is determined
+%        from the extension of filename.
+%        If this fails, the default is '-dpdf'.
+%  - 'Renderer': renderer to be used.
+%      = '-painters' (default) | '-opengl'
+%  - 'Resolution': resolution of produced image (for opengl renderer)
+%      = auto (default) | Positive number
+%  - 'RemoveMargin': enable removal of margins.
+%                    Don't activate if figure has subplots!!
+%      = false (default) | true
 % Get the newest version from:
 %     https://github.com/rleonarduzzi/matlab-fig-printing
 %
-% Copyright Roberto Fabio Leonarduzzi, February 2015
+% Copyright Roberto Fabio Leonarduzzi, February 2016
 
 %-------------------------------------------------------------------------------
 % Default parameters
@@ -73,13 +81,13 @@ while iarg < length (varargin)
     if strcmpi (varargin{iarg}, 'Box') && strcmpi (varargin{iarg + 1}, 'off')
         use_box = 'off';
         iarg = iarg + 2;
-    elseif strcmpi (varargin{iarg}, 'FontSize') 
+    elseif strcmpi (varargin{iarg}, 'FontSize')
         if ~isscalar (varargin{iarg+1})
             error ('Font size must be a number.');
         end
         font_size = varargin{iarg+1};
         iarg = iarg + 2;
-    elseif strcmpi (varargin{iarg}, 'FileFormat') 
+    elseif strcmpi (varargin{iarg}, 'FileFormat')
         if ~ischar (varargin{iarg+1})
             error ('FileFormat a string.');
         end
@@ -118,7 +126,7 @@ while iarg < length (varargin)
         iarg = iarg + 2;
     else
         iarg = iarg + 1;
-    end    
+    end
 end
 
 % If resolution was specified and renderer is painters, change it to opengl
@@ -144,7 +152,7 @@ newfig = copyobj (fighan, 0);
 children_axes = findall(newfig, 'type', 'axes');
 nchildren = length (children_axes);
 
-% Store children axes' limits. Later they will be restored because shrinking 
+% Store children axes' limits. Later they will be restored because shrinking
 % the figure sometimes changes the limits.
 for ich = length (children_axes) : -1 : 1
     limix(ich, :) = get (children_axes(ich), 'XLim');
@@ -170,10 +178,10 @@ set (newfig, 'Position', [ 0 0 width height])
 if flag_remove_margin
     set (children_axes, 'Units', 'normalized')
 
-    % Get TightInset 
+    % Get TightInset
     % (the max contemplates the case of superimposed axes like in plotyy)
     tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
-    
+
     newpos(1:2) = tins(1:2);
     newpos(3) = 1 - tins(1) - tins(3);
     newpos(4) = 1 - tins(2) - tins(4);
@@ -227,7 +235,7 @@ try
                      titulo, ...
                      result(tokext{1}(2) + 1  : end));
 %- result(ini : fin) = [];
-%- 
+%-
 %- % Escribo el nombre nuevo (tengo que usar sprintf para que interprete los \n):
 %- result = sprintf ('%sInfoBegin\nInfoKey: Title\nInfoValue: %s\n', result, titulo);
 %- %result
