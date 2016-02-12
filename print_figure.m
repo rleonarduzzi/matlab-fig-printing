@@ -129,8 +129,12 @@ end
 % TODO add more supported figures properties as key-value pairs
 
 %-------------------------------------------------------------------------------
+
+% Copy figure and work on the copy
+newfig = copyobj (fighan, 0);
+
 % Get handle to children axes.
-children_axes = findall(fighan, 'type', 'axes');
+children_axes = findall(newfig, 'type', 'axes');
 nchildren = length (children_axes);
 
 % Store children axes' limits. Later they will be restored because shrinking 
@@ -140,30 +144,30 @@ for ich = length (children_axes) : -1 : 1
     limiy(ich, :) = get (children_axes(ich), 'YLim');
 end
 
-set (fighan, 'Color', [1 1 1])
+set (newfig, 'Color', [1 1 1])
 
 % Change box and fontsize of children axes
 set (children_axes, 'Box', use_box )
 set (children_axes, 'FontUnits', 'points', 'FontSize', font_size )
 
 % Fix fontsize of all children with text property.
-set (findall (fighan, 'type', 'text'), 'FontSize', font_size)
+set (findall (newfig, 'type', 'text'), 'FontSize', font_size)
 
 % Use cm as the unit for all what follows.
-set (fighan, 'Units', 'centimeters')
+set (newfig, 'Units', 'centimeters')
 
-%get(fighan, 'Position') % debugging
+%get(newfig, 'Position') % debugging
 % Fix size and position
-set (fighan, 'Position', [ 0 0 width height])
+set (newfig, 'Position', [ 0 0 width height])
 
-%get(fighan, 'Position') %  debugging
+%get(newfig, 'Position') %  debugging
 
 % Make figure size in paper the same than on the screen
-set (fighan, 'PaperPositionMode', 'auto')
+set (newfig, 'PaperPositionMode', 'auto')
 
-screen_pos = get (fighan, 'Position');
+screen_pos = get (newfig, 'Position');
 screen_pos(1:2) = [1 1];
-set (fighan, 'PaperUnits', get(fighan, 'Units'), ...
+set (newfig, 'PaperUnits', get(newfig, 'Units'), ...
              'PaperSize', screen_pos(3:4))
 
 % Restore axes limits in case they have been changed.
@@ -172,10 +176,10 @@ for ich = 1 : nchildren
 end
 
 % Save the figure in pdf format
-print_params = {file_format, renderer, resolution, '-loose', filename};
+print_params = {newfig, file_format, renderer, resolution, '-loose', filename};
 print (print_params{:})
 
-close (fighan)
+close (newfig)
 
 return
 %---------------------------------------------
