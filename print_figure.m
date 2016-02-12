@@ -33,6 +33,7 @@ use_box = 'on';
 font_size = 8;
 renderer = '-painters';
 resolution = [];
+flag_remove_margin = false;  % Do not enable with subplots!
 
 %-------------------------------------------------------------------------------
 % Determine file format from input name
@@ -109,6 +110,12 @@ while iarg < length (varargin)
         end
         resolution = sprintf ('-r%i', varargin{iarg + 1});
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'RemoveMargin')
+        if ~islogical (varargin{iarg + 1})
+            error ('Resolution must be a logical')
+        end
+        flag_remove_margin = varargin{iarg + 1};
+        iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end    
@@ -160,6 +167,18 @@ set (newfig, 'Units', 'centimeters')
 % Fix size and position
 set (newfig, 'Position', [ 0 0 width height])
 
+if flag_remove_margin
+    set (children_axes, 'Units', 'normalized')
+
+    % Get TightInset 
+    % (the max contemplates the case of superimposed axes like in plotyy)
+    tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
+    
+    newpos(1:2) = tins(1:2);
+    newpos(3) = 1 - tins(1) - tins(3);
+    newpos(4) = 1 - tins(2) - tins(4);
+    set (children_axes, 'Position', newpos)
+end
 %get(newfig, 'Position') %  debugging
 
 % Make figure size in paper the same than on the screen
