@@ -31,6 +31,8 @@ function print_figure (filename, width, height, varargin)
 fighan = gcf;
 use_box = 'on';
 font_size = 8;
+renderer = '-painters';
+resolution = [];
 
 %-------------------------------------------------------------------------------
 % Determine file format from input name
@@ -89,11 +91,35 @@ while iarg < length (varargin)
         end
         fighan = varargin{iarg+1};
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'Renderer')
+        if ~ischar (varargin{iarg + 1})
+            error ('Renderer must be a string')
+        end
+        renderer = varargin{iarg + 1};
+        iarg = iarg + 2;
+        if renderer(1) ~= '-'
+            renderer = strcat ('-', renderer);
+        end
+        if ~strcmp (renderer, '-painters') && ~strcmp (renderer, '-opengl')
+            error ('Renderer must be either ''painters'' or ''opengl''')
+        end
+    elseif strcmpi (varargin{iarg}, 'Resolution')
+        if ~isscalar (varargin{iarg + 1})
+            error ('Resolution must be a scalar')
+        end
+        resolution = sprintf ('-r%i', varargin{iarg + 1});
+        iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end    
 end
 
+% If resolution was specified and renderer is painters, change it to opengl
+if ~isempty (resolution) && strcmp (renderer, '-painters')
+    warning (['Resolution was specified but renderer is painters. ' ...
+              'I''m changing it to opengl'])
+    renderer = '-opengl';
+end
 
 if flag_using_default_file_format
     warning (['File extension not recognized and file format not specified.'...
@@ -146,7 +172,8 @@ for ich = 1 : nchildren
 end
 
 % Save the figure in pdf format
-print (file_format, '-loose', filename)
+print_params = {file_format, renderer, resolution, '-loose', filename};
+print (print_params{:})
 
 close (fighan)
 
