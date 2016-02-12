@@ -179,8 +179,12 @@ if flag_remove_margin
     set (children_axes, 'Units', 'normalized')
 
     % Get TightInset
-    % (the max contemplates the case of superimposed axes like in plotyy)
-    tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
+    if length (children_axes) == 1
+        tins = get (children_axes, 'TightInset');;
+    else
+        % This contemplates the case of superimposed axes like in plotyy
+        tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
+    end
 
     newpos(1:2) = tins(1:2);
     newpos(3) = 1 - tins(1) - tins(3);
