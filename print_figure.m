@@ -29,6 +29,11 @@ function print_figure (filename, width, height, varargin)
 %  - 'RemoveMargin': enable removal of margins.
 %                    Don't activate if figure has subplots!!
 %      = false (default) | true
+%  - 'Margin': fraction of the figure size to be added as margin. The margin
+%              affects the paper size, not the figure (i.e. the content will be
+%               of size width x height but the paper will be a little larger).
+%      = [0 0] (default) | 2 x 1 vector of positive numbers
+%
 % Get the newest version from:
 %     https://github.com/rleonarduzzi/matlab-fig-printing
 %
@@ -42,7 +47,8 @@ font_size = 8;
 renderer = '-painters';
 resolution = [];
 flag_remove_margin = false;  % Do not enable with subplots!
-
+xmargin = 0;
+ymargin = 0;
 %-------------------------------------------------------------------------------
 % Determine file format from input name
 % This is overriden if format is explicitly provided.
@@ -124,6 +130,13 @@ while iarg < length (varargin)
         end
         flag_remove_margin = varargin{iarg + 1};
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'Margin')
+        if ~isvector(varargin{iarg + 1}) && length (varargin{iarg + 1}) ~= 2
+            error ('Resolution must be a 2x1 vector')
+        end
+        xmargin = varargin{iarg + 1}(1);
+        ymargin = varargin{iarg + 1}(2);
+        iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end
@@ -187,19 +200,21 @@ if flag_remove_margin
     end
 
     newpos(1:2) = tins(1:2);
-    newpos(3) = 1 - tins(1) - tins(3);
-    newpos(4) = 1 - tins(2) - tins(4);
+    newpos(3) = 1 - (tins(1) + tins(3));
+    newpos(4) = 1 - (tins(2) + tins(4));
     set (children_axes, 'Position', newpos)
 end
 %get(newfig, 'Position') %  debugging
 
 % Make figure size in paper the same than on the screen
-set (newfig, 'PaperPositionMode', 'auto')
-
+%set (newfig, 'PaperPositionMode', 'auto')
+             
 screen_pos = get (newfig, 'Position');
-screen_pos(1:2) = [1 1];
+screen_pos(1:2) = [0 0] + screen_pos(3:4) .* [xmargin ymargin] ./ 2;
 set (newfig, 'PaperUnits', get(newfig, 'Units'), ...
-             'PaperSize', screen_pos(3:4))
+             'PaperSize', screen_pos(3:4) .* [1 + xmargin 1 + ymargin], ...
+             'PaperPositionMode', 'manual', ...
+             'PaperPosition', screen_pos )
 
 % Restore axes limits in case they have been changed.
 for ich = 1 : nchildren
