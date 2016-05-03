@@ -198,10 +198,11 @@ if flag_remove_margin
         % This contemplates the case of superimposed axes like in plotyy
         tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
     end
-
-    newpos(1:2) = tins(1:2);
-    newpos(3) = 1 - (tins(1) + tins(3));
-    newpos(4) = 1 - (tins(2) + tins(4));
+    
+    epsi = 0.02;
+    newpos(1:2) = tins(1:2) + epsi;
+    newpos(3) = 1 - (tins(1) + tins(3)) - 2 * epsi;
+    newpos(4) = 1 - (tins(2) + tins(4)) - 2 * epsi;
     set (children_axes, 'Position', newpos)
 end
 %get(newfig, 'Position') %  debugging
