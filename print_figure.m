@@ -49,6 +49,7 @@ resolution = [];
 flag_remove_margin = false;  % Do not enable with subplots!
 xmargin = 0;
 ymargin = 0;
+figure_color = [1 1 1];
 %-------------------------------------------------------------------------------
 % Determine file format from input name
 % This is overriden if format is explicitly provided.
@@ -137,6 +138,12 @@ while iarg < length (varargin)
         xmargin = varargin{iarg + 1}(1);
         ymargin = varargin{iarg + 1}(2);
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'FigureColor')
+        if ~isvector(varargin{iarg + 1}) && ~isstring (varargin{iarg + 1})
+            error ('FigureColor must be vector or string')
+        end
+        figure_color = varargin{iarg + 1};
+        iarg = iarg + 2;
     else
         iarg = iarg + 1;
     end
@@ -172,7 +179,10 @@ for ich = length (children_axes) : -1 : 1
     limiy(ich, :) = get (children_axes(ich), 'YLim');
 end
 
-set (newfig, 'Color', [1 1 1])
+set (newfig, 'Color', figure_color)
+
+% Make figure respect background color when printed:
+set (gcf, 'InvertHardcopy', 'off')
 
 % Change box and fontsize of children axes
 set (children_axes, 'Box', use_box )
