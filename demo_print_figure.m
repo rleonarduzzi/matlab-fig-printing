@@ -25,6 +25,9 @@ function demo_print_figure (SELECT_EXAMPLE)
       case 4
         % Example with images
         example_4 ()
+      case 5
+        % Example printing a separate label
+        example_5 ()
     end
 
 end
@@ -133,6 +136,38 @@ function example_4 ()
                   'Renderer', 'opengl', ...
                   'Resolution', 600, ...
                   'FigureColor', 0.4 * [1 1 1])
+end
+%-------------------------------------------------------------------------------
+function example_5 ()
+% Print a plot and the legend in a separate file.
+    N = 1000;  % number of points
+    [xx, yyu, yyl] = batman (N);
+
+    markers = {'b', 'r'};
+    leg_text = {'upper half', 'lower half'};
+
+    %- Make plot:
+    figure (1)
+    plot (xx, yyu, markers{1})
+    hold on
+    plot (xx, yyl, markers{2})
+    grid on
+    title ('Batman function')
+    xlabel ('x')
+    ylabel ('y')
+
+    width = 7;  % cm
+    height = 5; % cm
+
+    filename_fig = 'figure5.pdf';
+    filename_leg = 'legend_figure_5.pdf';
+
+    % Print figure
+    print_figure (filename_fig, width, height, 'RemoveMargin', true)
+
+    % Build and print legend:
+    solo_legend (markers, leg_text, 'Orientation', 'horizontal')
+    print_figure (filename_leg, 8, 1.5)
 
 end
 %-------------------------------------------------------------------------------
