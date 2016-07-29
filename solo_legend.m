@@ -8,6 +8,15 @@ function [fig_han] = solo_legend (markers, labels, varargin)
 %
 % RFL, 23/01/2015
 
+% Display warning if version is larger than 9.0 (2016a)
+% Since strcmp returns a logical in matlab, use a workaround to do a
+% lexicographical comparison:
+tmp = sort ({version, '9.0'});
+if strcmp (tmp{1}, '9.0')
+    warning ('This function does not work properly in Matlab 2016 or later')
+end
+
+
 % Default values for optional parameters:
 orientation = 'horizontal';
 box = 'on';
