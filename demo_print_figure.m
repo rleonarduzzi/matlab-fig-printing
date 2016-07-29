@@ -1,7 +1,6 @@
 % Demo script to illustrate the use of print_figures.
 %
 % See the different subfunctions in the file to see different use cases.
-% Requires the file batman.m.
 %
 % RFL
 % July 2016
@@ -169,5 +168,35 @@ function example_5 ()
     solo_legend (markers, leg_text, 'Orientation', 'horizontal')
     print_figure (filename_leg, 8, 1.5)
 
+end
+%-------------------------------------------------------------------------------
+function [x, f_up, f_low] = batman (n)
+% Creates the batman function using n points.
+
+    x = linspace (-7, 7, n);
+
+    w = 3 * sqrt (1 - (x / 7) .^ 2);
+     h = (3 * (abs (x + 1 / 2) + abs (x - 1 / 2) + 6) - 11 * (abs (x + 3 / 4)  + ...
+          abs (x - 3 / 4))) / 2;
+    l = (x + 3) / 2 - 3 / 7 * sqrt (10) * sqrt (4 - (-x - 1) .* 2) + ...
+        6 / 7 * sqrt (10);
+    r = (3 - x) / 2 - 3 / 7 * sqrt (10) * sqrt (4 - (x - 1) .* 2) + ...
+        6 / 7 * sqrt (10);
+
+    %    h = zeros (size (h));
+
+    f_up = (h - l) .* H (x + 1) + (r - h) .* H (x - 1) + ...
+           (l - w) .* H (x + 3) + (w - r) .* H (x - 3) + w;
+    f_low = (abs (x / 2) + sqrt (1 - (abs (abs (x) - 2) - 1) .^ 2) - ...
+             (3 * sqrt (33) - 7) .* x .^ 2 / 112 + ...
+             3 * sqrt (1 - (x / 7) .^ 2) - 3  ) / 2 .* ...
+            (sign (x + 4) - sign (x - 4)) - ...
+            3 * sqrt (1 - (x / 7) .^ 2);
+
+end  % function batman
+
+function y = H(x)
+% Heaviside step function
+    y = x >= 0;
 end
 %-------------------------------------------------------------------------------
