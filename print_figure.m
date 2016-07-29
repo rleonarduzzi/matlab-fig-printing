@@ -33,7 +33,10 @@ function print_figure (filename, width, height, varargin)
 %              affects the paper size, not the figure (i.e. the content will be
 %               of size width x height but the paper will be a little larger).
 %      = [0 0] (default) | 2 x 1 vector of positive numbers
-%
+%  - 'KeepBackgroundColor': if false, the figure will be plotted with a white
+%                           background. If true, the figure's background will
+%                           be used.
+%      = false (defaul) | true
 % Get the newest version from:
 %     https://github.com/rleonarduzzi/matlab-fig-printing
 %
@@ -49,7 +52,7 @@ resolution = [];
 flag_remove_margin = false;  % Do not enable with subplots!
 xmargin = 0;
 ymargin = 0;
-figure_color = [1 1 1];
+flag_set_background_color = true;
 %-------------------------------------------------------------------------------
 % Determine file format from input name
 % This is overriden if format is explicitly provided.
@@ -138,11 +141,11 @@ while iarg < length (varargin)
         xmargin = varargin{iarg + 1}(1);
         ymargin = varargin{iarg + 1}(2);
         iarg = iarg + 2;
-    elseif strcmpi (varargin{iarg}, 'FigureColor')
-        if ~isvector(varargin{iarg + 1}) && ~isstring (varargin{iarg + 1})
-            error ('FigureColor must be vector or string')
+    elseif strcmpi (varargin{iarg}, 'KeepBackgroundColor')
+        if ~islogical(varargin{iarg + 1})
+            error ('FigureColor must be a logical')
         end
-        figure_color = varargin{iarg + 1};
+        flag_set_background_color = ~varargin{iarg + 1};
         iarg = iarg + 2;
     else
         iarg = iarg + 1;
@@ -179,7 +182,9 @@ for ich = length (children_axes) : -1 : 1
     limiy(ich, :) = get (children_axes(ich), 'YLim');
 end
 
-set (newfig, 'Color', figure_color)
+if flag_set_background_color
+    set (newfig, 'Color', [1 1 1])
+end
 
 % Make figure respect background color when printed:
 set (gcf, 'InvertHardcopy', 'off')

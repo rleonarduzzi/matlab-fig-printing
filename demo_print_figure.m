@@ -126,6 +126,7 @@ function example_4 ()
     hold on
     area (xx, yyl, 'FaceColor', 'k', 'ShowBaseline', 'off')
     hold off
+    set (gcf, 'Color', 0.4 * [1 1 1])
     set (gca, 'Color', 'y', ...
               'XTick', [], 'Ytick', [])
     width = 14;
@@ -134,7 +135,7 @@ function example_4 ()
     print_figure (filename, width, height, ...
                   'Renderer', 'opengl', ...
                   'Resolution', 600, ...
-                  'FigureColor', 0.4 * [1 1 1])
+                  'KeepBackgroundColor', true)
 end
 %-------------------------------------------------------------------------------
 function example_5 ()
