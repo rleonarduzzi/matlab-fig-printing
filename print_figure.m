@@ -53,6 +53,10 @@ flag_remove_margin = false;  % Do not enable with subplots!
 xmargin = 0;
 ymargin = 0;
 flag_set_background_color = true;
+flag_resample_labels = false;
+
+% TODO can I determine the need of resampling the labels? For instance,
+% detecting that the ticklabels have been manually set.
 %-------------------------------------------------------------------------------
 % Determine file format from input name
 % This is overriden if format is explicitly provided.
@@ -99,7 +103,7 @@ while iarg < length (varargin)
         iarg = iarg + 2;
     elseif strcmpi (varargin{iarg}, 'FileFormat')
         if ~ischar (varargin{iarg+1})
-            error ('FileFormat a string.');
+            error ('FileFormat must be a string.');
         end
         file_format = varargin{iarg+1};
         flag_using_default_file_format = false;
@@ -147,6 +151,13 @@ while iarg < length (varargin)
         end
         flag_set_background_color = ~varargin{iarg + 1};
         iarg = iarg + 2;
+    elseif strcmpi (varargin{iarg}, 'ResampleLabels')
+        if ~islogical(varargin{iarg + 1})
+            error ('ResampleLabels must be a logical')
+        end
+        flag_resample_labels = varargin{iarg + 1};
+        iarg = iarg + 2;
+
     else
         iarg = iarg + 1;
     end
@@ -199,9 +210,37 @@ set (findall (newfig, 'type', 'text'), 'FontSize', font_size)
 % Use cm as the unit for all what follows.
 set (newfig, 'Units', 'centimeters')
 
+% If the ticklabels were set manually, when reducing the figure size (and
+% thus reducing the number of ticks) matlab will keep only the first ticks.
+% Keep the original ones so that proper ones can be used after resizing.
+xt  = get (children_axes, 'XTick');
+xtl = get (children_axes, 'XTickLabels');
+yt  = get (children_axes, 'YTick');
+ytl = get (children_axes, 'YTickLabels');
+
+% Homogeneize the outputs
+% (since their cell arrays when numel(children_axes) > 1
+if ~iscell (xt)
+    xt  = {xt};
+    xtl = {xtl};
+    yt  = {yt};
+    ytl = {ytl};
+end
+
 %get(newfig, 'Position') % debugging
 % Fix size and position
 set (newfig, 'Position', [ 0 0 width height])
+
+if flag_resample_labels
+    for ic = 1 : length (children_axes)
+        [xtn{ic} xtln{ic}] = resample_labels (get (children_axes(ic), 'XTick'), xt{ic}, xtl{ic});
+        [ytn{ic} ytln{ic}] = resample_labels (get (children_axes(ic), 'YTick'), yt{ic}, ytl{ic});
+
+        set (children_axes(ic), 'XTick', xtn{ic}, 'XTickLabels', xtln{ic});
+        set (children_axes(ic), 'YTick', ytn{ic}, 'YTickLabels', ytln{ic});
+    end
+end
+
 
 if flag_remove_margin
     set (children_axes, 'Units', 'normalized')
@@ -213,7 +252,7 @@ if flag_remove_margin
         % This contemplates the case of superimposed axes like in plotyy
         tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
     end
-    
+
     epsi = 0.02;
     newpos(1:2) = tins(1:2) + epsi;
     newpos(3) = 1 - (tins(1) + tins(3)) - 2 * epsi;
@@ -224,7 +263,7 @@ end
 
 % Make figure size in paper the same than on the screen
 %set (newfig, 'PaperPositionMode', 'auto')
-             
+
 screen_pos = get (newfig, 'Position');
 screen_pos(1:2) = [0 0] + screen_pos(3:4) .* [xmargin ymargin] ./ 2;
 set (newfig, 'PaperUnits', get(newfig, 'Units'), ...
@@ -288,3 +327,27 @@ try
     system (sprintf ('mv tmp_salida.pdf %s', nombre));
     system ('rm tmp_info_pdf.txt');
 end
+
+end  % function print_figure
+
+function [pos_new, lab_new] = resample_labels (pos_curr, pos_old, lab_old)
+% Produce, from pos_old and lab_old, length(pos_curr)  new positions and
+% labels.
+%
+% Precondition: length (pos_curr) <= length (pos_old)
+
+    % Catch case of empty labels
+    if isempty (lab_old)
+        pos_new = pos_curr;
+        lab_new = lab_old;
+        return
+    end
+
+    n = length (pos_curr);
+
+    idx_new = 1 : round (length (pos_old) / n) : length (pos_old);
+
+    pos_new = pos_old(idx_new);
+    lab_new = lab_old(idx_new);
+
+end  % function resample_labels
