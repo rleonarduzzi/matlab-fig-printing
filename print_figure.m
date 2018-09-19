@@ -99,9 +99,12 @@ while iarg < length (varargin)
         iarg = iarg + 2;
     elseif strcmpi (varargin{iarg}, 'FileFormat')
         if ~ischar (varargin{iarg+1})
-            error ('FileFormat a string.');
+            error ('FileFormat must be a string.');
         end
         file_format = varargin{iarg+1};
+        if ~strcmp (file_format(1:2), '-d')
+            file_format = strcat ('-d', file_format);
+        end
         flag_using_default_file_format = false;
         iarg = iarg + 2;
     elseif strcmpi (varargin{iarg}, 'Handle')
@@ -213,7 +216,7 @@ if flag_remove_margin
         % This contemplates the case of superimposed axes like in plotyy
         tins = max (cell2mat (get (children_axes, 'TightInset')), [], 1);
     end
-    
+
     epsi = 0.02;
     newpos(1:2) = tins(1:2) + epsi;
     newpos(3) = 1 - (tins(1) + tins(3)) - 2 * epsi;
@@ -224,7 +227,7 @@ end
 
 % Make figure size in paper the same than on the screen
 %set (newfig, 'PaperPositionMode', 'auto')
-             
+
 screen_pos = get (newfig, 'Position');
 screen_pos(1:2) = [0 0] + screen_pos(3:4) .* [xmargin ymargin] ./ 2;
 set (newfig, 'PaperUnits', get(newfig, 'Units'), ...
